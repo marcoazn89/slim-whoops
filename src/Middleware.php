@@ -62,8 +62,8 @@ class Middleware {
             // and logging them, then passing the exception on to the other handlers:
             $whoops->pushHandler(function ($exception, $inspector, $run) use($logger) {
                 $logger->addError($exception->getMessage());
-            });
-            $whoops->register();*/
+            });*/
+            $whoops->register();
 
             $container['errorHandler'] = function($c) use ($whoops) {
             	return function($request, $response, $exception) use ($whoops) {
