@@ -10,8 +10,9 @@ class Middleware {
     public $app;
     public $logger;
 
-    public function __construct(\Slim\App $app) {
+    public function __construct(\Slim\App $app, \Psr\Log\LoggerInterface $logger = null) {
         $this->app = $app;
+        $this->logger = $logger;
     }
 
     public function __invoke($request, $response, $next) {
@@ -56,13 +57,16 @@ class Middleware {
 
             /*// Setup Monolog, for example:
             $logger = new \Monolog\Logger('Test');
-            $logger->pushHandler(new \Monolog\Handler\StreamHandler("c:/xampp/php/logs/php_error_log"));
+            $logger->pushHandler(new \Monolog\Handler\StreamHandler("c:/xampp/php/logs/php_error_log"));*/
 
             // Place our custom handler in front of the others, capturing exceptions
             // and logging them, then passing the exception on to the other handlers:
-            $whoops->pushHandler(function ($exception, $inspector, $run) use($logger) {
-                $logger->addError($exception->getMessage());
-            });*/
+            if(!empty($logger = $this->logger)) {
+                $whoops->pushHandler(function ($exception, $inspector, $run) use($logger) {
+                    $logger->error($exception->getMessage());
+                });
+            }
+
             $whoops->register();
 
             $container['errorHandler'] = function($c) use ($whoops) {
